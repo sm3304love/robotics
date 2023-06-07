@@ -20,7 +20,7 @@ int main(int argc, char** argv)
     ros::Publisher modelStatePub = nh.advertise<gazebo_msgs::ModelState>("/gazebo/set_model_state", 10);
     ros::Publisher closestBoxPub = nh.advertise<gazebo_msgs::ModelState>("/closest_boxes", 10);
 
-    std::vector<std::string> modelNames = {"box1", "box2", "box3", "box4", "box5"};
+    std::vector<std::string> modelNames = {"box1", "box2", "box3", "box4", "box5", "box6", "box7", "box8", "box9", "box10"};
 
     std::vector<geometry_msgs::Pose> startPoses;
     std::vector<geometry_msgs::Pose> targetPoses;
