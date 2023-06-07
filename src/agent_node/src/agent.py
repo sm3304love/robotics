@@ -65,9 +65,8 @@ class learning_class:
         
 
     def test_callback(self):
-        print(self.contact)
-        print(self.x)
-        print(self.Box_dict["box1"])
+        print('Contact : ',self.contact)
+        print('Robot Position : ', self.x, self.y, self.z)
 
     def pub(self):        
         pub_action = Twist()
