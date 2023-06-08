@@ -5,24 +5,19 @@
 
 
 ```bash
-source catki_ws/devel/setup.bash
+source catkin_ws/devel/setup.bash
 ```
 
 
-### make world
+#### launch World + box random moving
 ```bash
 roslaunch nexus_4wd_mecanum_gazebo nexus_4wd_mecanum_world.launch
 ```
 
 
-### box random moving
+#### Environment Node + Conflict Regenerate
 ```bash
-rosrun random_box_mover random_box_mover
-```
-
-### Agent Node
-```bash
-rosrun agent_node agent.py
+rosrun agent_node env.py
 ```
 
 
@@ -55,3 +50,16 @@ rosrun agent_node agent.py
     
     *  `/gazebo/set_model_state` (`gazebo_msgs/ModelState`)   
         Box Position Information
+
+    *  `/laser/scan` (`sensor_msgs/LaserScan`)   
+        Laser Sensor Data : 720 × 1
+
+
+
+
+
+
+
+***
+## Environment _v1
+![envv1](./imgs/env_v1.gif)
