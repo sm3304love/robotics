@@ -62,4 +62,10 @@ rosrun agent_node env.py
 
 ***
 ## Environment _v1
-![envv1](./imgs/env_v1.gif)
+
+
+
+|                                  |                                                |
+| :------------------------------: | :--------------------------------------------: |
+|         `video`          |                 `nexus0 robot + lasor sensor`                 |
+| ![envv1](./imgs/env_v1.gif) |         ![robot](/imgs/robot.png)         |
