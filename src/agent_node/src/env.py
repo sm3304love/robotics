@@ -3,11 +3,18 @@
 
 import rospy				
 from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan
 from gazebo_msgs.msg import ContactsState, ModelState
 from geometry_msgs.msg import Twist
 import numpy as np
 import torch
 import pandas as pd
+
+
+
+import rospy
+from std_srvs.srv import Empty
+
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -19,6 +26,7 @@ class learning_class:
         rospy.Subscriber('/odom', Odometry, self.callback_odom)
         rospy.Subscriber('/base_link_contact_sensor_state', ContactsState, self.callback_contact)
         rospy.Subscriber('/gazebo/set_model_state', ModelState, self.box_callback)
+        rospy.Subscriber('/laser/scan', LaserScan, self.laser_callback)
         self.publish_agent_action = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
         
         # robot position
@@ -37,6 +45,12 @@ class learning_class:
             self.Box_dict[boxname[i]] = [0,0,0, 0,0,0] # x,y,z, rx,ry,rz
 
         self.contact = False
+
+        # laser
+        self.laser_observation = []
+
+    def laser_callback(self, msg):
+        self.laser_observation = msg.ranges
 
 
     def callback_odom(self, msg):
@@ -62,11 +76,12 @@ class learning_class:
             self.contact = True
         else:
             self.contact = False
-        
+
 
     def test_callback(self):
         print('Contact : ',self.contact)
         print('Robot Position : ', self.x, self.y, self.z)
+        print('laser: ', np.array(self.laser_observation).shape)
 
     def pub(self):        
         pub_action = Twist()
@@ -89,6 +104,14 @@ def main():
 
     process = learning_class()
     while not rospy.is_shutdown():
+
+        
+        # If Collision, reset world
+        if process.contact == True:
+            rospy.wait_for_service('/gazebo/reset_world')
+            reset_world = rospy.ServiceProxy('/gazebo/reset_world', Empty)
+            reset_world()
+            print('reset world')
 
         process.test_callback()
         process.pub()

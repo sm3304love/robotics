@@ -20,9 +20,9 @@
 
   <!-- Spawn the robot -->
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
-        args="-urdf -model nexus_4wd_mecanum -param robot_description -x 0 -y 0 -z 0.5" />
+        args="-urdf -model nexus_4wd_mecanum -param robot_description -x 0 -y 0 -z 0.1" />
 
-
+  <node pkg="random_box_mover" type="random_box_mover" name="random_box_mover" />
 
 
 
