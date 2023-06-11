@@ -7,7 +7,7 @@ from sensor_msgs.msg import LaserScan
 from gazebo_msgs.msg import ContactsState, ModelState
 from geometry_msgs.msg import Twist
 import numpy as np
-import torch
+# import torch
 import pandas as pd
 
 
@@ -17,8 +17,8 @@ from std_srvs.srv import Empty
 
 
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-torch.manual_seed(777)
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# torch.manual_seed(777)
 
 
 class learning_class:
@@ -40,8 +40,8 @@ class learning_class:
 
         # Box Information
         self.Box_dict = {}
-        boxname = ["box1", "box2", "box3", "box4", "box5", "box6", "box7", "box8", "box9", "box10"]
-        for i in range(10): # box1 ~ box10 init
+        boxname = ["box1", "box2", "box3", "box4", "box5", "box6", "box7", "box8", "box9", "box10","box_target"]
+        for i in range(len(boxname)): # box1 ~ box10 init
             self.Box_dict[boxname[i]] = [0,0,0, 0,0,0] # x,y,z, rx,ry,rz
 
         self.contact = False
@@ -81,17 +81,18 @@ class learning_class:
     def test_callback(self):
         print('Contact : ',self.contact)
         print('Robot Position : ', self.x, self.y, self.z)
+        print('Target_box Position : ', self.Box_dict['box_target'])
         print('laser: ', np.array(self.laser_observation).shape)
 
     def pub(self):        
         pub_action = Twist()
-        pub_action.linear.x = 0.5
-        pub_action.linear.y = 0.5
+        pub_action.linear.x = 2.5
+        pub_action.linear.y = 0.0
         pub_action.linear.z = 0.0
 
         pub_action.angular.x = 0.0
         pub_action.angular.y = 0.0
-        pub_action.angular.z = 0.3
+        pub_action.angular.z = -0.1
 
         self.publish_agent_action.publish(pub_action)
 
