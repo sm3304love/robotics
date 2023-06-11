@@ -20,13 +20,9 @@
 
   <!-- Spawn the robot -->
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
-        args="-urdf -model nexus_4wd_mecanum -param robot_description -x 0 -y 0 -z 0.1" />
+        args="-urdf -model nexus_4wd_mecanum -param robot_description -x -4.0 -y 0 -z 0.1" />
 
-  <node pkg="random_box_mover" type="random_box_mover" name="random_box_mover" />
-
-
-
-
+  
   <!-- Spawn the boxes -->
   <group ns="boxes">   
     <node name="spawn_box_1"  pkg="gazebo_ros" type="spawn_model" args="-file $(find nexus_4wd_mecanum_description)/urdf/box1.urdf  -urdf -model box1   -x -1     -y  1    -z 0" />
@@ -39,6 +35,7 @@
     <node name="spawn_box_8"  pkg="gazebo_ros" type="spawn_model" args="-file $(find nexus_4wd_mecanum_description)/urdf/box8.urdf   -urdf -model box8   -x -1     -y  2    -z 0" />
     <node name="spawn_box_9"  pkg="gazebo_ros" type="spawn_model" args="-file $(find nexus_4wd_mecanum_description)/urdf/box9.urdf   -urdf -model box9   -x -2     -y -3    -z 0" />
     <node name="spawn_box_10" pkg="gazebo_ros" type="spawn_model" args="-file $(find nexus_4wd_mecanum_description)/urdf/box10.urdf -urdf -model box10  -x -2.7   -y  4    -z 0" />
+    <node name="spawn_box_target" pkg="gazebo_ros" type="spawn_model" args="-file $(find nexus_4wd_mecanum_description)/urdf/box_target.urdf -urdf -model box_target  -x 4.7   -y  0    -z 0" />
  </group>
 
 </launch>

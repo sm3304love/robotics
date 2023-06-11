@@ -21,7 +21,7 @@
               <size>10.0 0.1 2.0</size>
             </box>
           </geometry>
-          <pose>5.0 0.0 0.5 0 0 1.57</pose>
+          <pose>7.0 0.0 0.5 0 0 1.57</pose>
         </collision>
         <visual name="wall_visual_1">
           <geometry>
@@ -29,7 +29,7 @@
               <size>10.0 0.1 2.0</size>
             </box>
           </geometry>
-          <pose>5.0 0.0 0.5 0 0 1.57</pose>
+          <pose>7.0 0.0 0.5 0 0 1.57</pose>
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
@@ -76,18 +76,18 @@
         <collision name="wall_collision_3">
           <geometry>
             <box>
-              <size>10.0 0.1 2.0</size>
+              <size>12.0 0.1 2.0</size>
             </box>
           </geometry>
-          <pose>0.0 5.0 0.5 0 0 0</pose>
+          <pose>1.0 5.0 0.5 0 0 0</pose>
         </collision>
         <visual name="wall_visual_3">
           <geometry>
             <box>
-              <size>10.0 0.1 2.0</size>
+              <size>12.0 0.1 2.0</size>
             </box>
           </geometry>
-          <pose>0.0 5.0 0.5 0 0 0</pose>
+          <pose>1.0 5.0 0.5 0 0 0</pose>
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>
@@ -105,18 +105,18 @@
         <collision name="wall_collision_4">
           <geometry>
             <box>
-              <size>10.0 0.1 2.0</size>
+              <size>12.0 0.1 2.0</size>
             </box>
           </geometry>
-          <pose>0.0 -5.0 0.5 0 0 0</pose>
+          <pose>1.0 -5.0 0.5 0 0 0</pose>
         </collision>
         <visual name="wall_visual_4">
           <geometry>
             <box>
-              <size>10.0 0.1 2.0</size>
+              <size>12.0 0.1 2.0</size>
             </box>
           </geometry>
-          <pose>0.0 -5.0 0.5 0 0 0</pose>
+          <pose>1.0 -5.0 0.5 0 0 0</pose>
           <material>
             <script>
               <uri>file://media/materials/scripts/gazebo.material</uri>

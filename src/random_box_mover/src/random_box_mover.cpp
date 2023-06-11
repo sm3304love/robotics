@@ -20,7 +20,7 @@ int main(int argc, char** argv)
     ros::Publisher modelStatePub = nh.advertise<gazebo_msgs::ModelState>("/gazebo/set_model_state", 10);
     ros::Publisher closestBoxPub = nh.advertise<gazebo_msgs::ModelState>("/closest_boxes", 10);
 
-    std::vector<std::string> modelNames = {"box1", "box2", "box3", "box4", "box5", "box6", "box7", "box8", "box9", "box10"};
+    std::vector<std::string> modelNames = {"box1", "box2", "box3", "box4", "box5", "box6", "box7", "box8", "box9", "box10", "box_target"};
 
     std::vector<geometry_msgs::Pose> startPoses;
     std::vector<geometry_msgs::Pose> targetPoses;
@@ -48,12 +48,12 @@ int main(int argc, char** argv)
     for (int i = 0; i < modelNames.size(); i++)
     {
         geometry_msgs::Pose startPose;
-        startPose.position.x = randX(gen)+1;  // 시작 위치 x
-        startPose.position.y = randY(gen)+1;  // 시작 위치 y
+        startPose.position.x = randX(gen)+2;  // 시작 위치 x
+        startPose.position.y = randY(gen);  // 시작 위치 y
         startPose.position.z = randZ(gen);  // 시작 위치 z
 
         geometry_msgs::Pose targetPose;
-        targetPose.position.x = randX(gen);  // 종료 위치 x
+        targetPose.position.x = randX(gen)+2;  // 종료 위치 x
         targetPose.position.y = randY(gen);  // 종료 위치 y
         targetPose.position.z = randZ(gen);  // 종료 위치 z
 
@@ -96,6 +96,32 @@ int main(int argc, char** argv)
 
             elapsedTimes[i] += 1.0 / rates[i];
 
+
+
+                                // box_target만 원형으로 움직이도록 설정
+            if (modelNames[i] == "box_target")
+            {
+                double radius = 2.0; // 원의 반지름
+                double angularSpeed = 0.5; // 회전 속도 (라디안/초)
+                double currentTime = ros::Time::now().toSec();
+                double angle = angularSpeed * currentTime; // 현재 시간에 따른 각도 계산
+
+                // 원형 운동을 위한 좌표 계산
+                double targetX = radius * std::cos(angle);
+                double targetY = radius * std::sin(angle);
+                double targetZ = 0.5;
+
+
+                // box_target의 위치 설정
+                modelState.pose.position.x = targetX;
+                modelState.pose.position.y = targetY;
+                modelState.pose.position.z = targetZ;
+
+                // 수정된 상태를 발행
+                modelStatePub.publish(modelState);
+            }
+
+
             // 가까운 박스 찾기
             double closestDistance = std::numeric_limits<double>::max();
             int closestIndex = -1;
@@ -127,6 +153,8 @@ int main(int argc, char** argv)
                 }
             }
         }
+
+
 
         ros::spinOnce();
         loopRate.sleep();
