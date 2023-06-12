@@ -4,20 +4,27 @@
 ## Usage
 
 
+
+
+**every Terminal**
 ```bash
 source catkin_ws/devel/setup.bash
 ```
 
 
-#### launch World + box random moving
+#### launch World
 ```bash
 roslaunch nexus_4wd_mecanum_gazebo nexus_4wd_mecanum_world.launch
 ```
 
+#### box random moving
+```bash
+rosrun random_box_mover random_box_mover
+```
 
 #### Environment Node + Conflict Regenerate
 ```bash
-rosrun agent_node env.py
+rosrun agent_node running.py
 ```
 
 
