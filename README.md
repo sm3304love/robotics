@@ -49,14 +49,14 @@ rosrun agent_node running.py
         Receives velocity command as a Twist message. The plugin will only process the linear velocity on the x and y-axis and the angular velocity on the z-axis
 
 * **Subscribed topic**
-    * `/odom` (`nav_msgs/Odometry`)   
+    * `/gazebo/model_states` (`gazebo_msgs/ModelStates`)   
         Nexus Robot Posiion
     
     *  `/base_link_contact_sensor_state` (`gazebo_msgs/ContactsState`)   
         Contact Sensor Data 
     
     *  `/gazebo/set_model_state` (`gazebo_msgs/ModelState`)   
-        Box Position Information
+        Obstacle & Target Pillar Position
 
     *  `/laser/scan` (`sensor_msgs/LaserScan`)   
         Laser Sensor Data : 720 × 1
@@ -66,9 +66,40 @@ rosrun agent_node running.py
 
 
 
+###
+* Observation   
+
+**State**
+```python
+def get_state(self):
+    """
+    State : Laser, Robot Position, Target Box Position
+    """
+    state = np.concatenate((self.laser_observation, 
+                            [self.nexus_x, self.nexus_y, self.nexus_rz], 
+                            self.Box_dict['box_target']), axis=0)
+    return state
+```
+
+**Reward**
+```python
+def get_reward(self):
+    """
+    Reward Setting : Distance between Robot and Target Box
+    """
+    reward = 2-np.sqrt((self.nexus_x - self.Box_dict['box_target'][0])**2 + (self.nexus_y - self.Box_dict['box_target'][1])**2)
+    return reward
+```
+
+
+
+
+
+
+
 
 ***
-## Environment _v1
+## Environment 
 
 
 
