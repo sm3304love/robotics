@@ -70,7 +70,7 @@ rosrun agent_node env.py
 
 |                                  |                                  |
 | :------------------------------: | :------------------------------: |
-|  `nexus0 robot + lasor sensor`   |  `nexus0 robot + lasor sensor`   |
-| ![robot](/imgs/robot.png)        | ![robot](/imgs/env_pic.png)        |
-|              `video`             |              `video`             |
-|  ![envv1](./imgs/env_v2.gif)     | ![robot](/imgs/robot_stic.png)        |
+|  `nexus0 robot + lasor sensor`   |                                  |
+| ![robot](/imgs/robot.png)        | ![robot](/imgs/env_pic.png)      |
+|                                  |                                  |
+|  ![envv1](./imgs/env_v2.gif)     | ![robot](/imgs/robot_stic.png)   |
