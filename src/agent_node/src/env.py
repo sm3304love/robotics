@@ -4,7 +4,7 @@
 import rospy				
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
-from gazebo_msgs.msg import ContactsState, ModelState
+from gazebo_msgs.msg import ContactsState, ModelState, ModelStates
 from geometry_msgs.msg import Twist
 import numpy as np
 # import torch
@@ -24,28 +24,21 @@ from std_srvs.srv import Empty
 
 class learning_class:
     def __init__(self):
-        rospy.Subscriber('/odom', Odometry, self.callback_odom)
-        rospy.Subscriber('/base_link_contact_sensor_state', ContactsState, self.callback_contact)
-        rospy.Subscriber('/gazebo/set_model_state', ModelState, self.box_callback)
-        rospy.Subscriber('/laser/scan', LaserScan, self.laser_callback)
-        self.publish_agent_action = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
-        self.odom_reset = rospy.Publisher('/mobile_base/commands/reset_odometry' ,Empty_msg, queue_size=10)
-
-        
-        # robot position
-        self.x = 0
-        self.y = 0
-        self.z = 0
-
-        self.rx = 0
-        self.ry = 0
-        self.rz = 0
-
         # Box Information
         self.Box_dict = {}
         boxname = ["box1", "box2", "box3", "box4", "box5", "box6", "box7", "box8", "box9", "box10","box_target"]
         for i in range(len(boxname)): # box1 ~ box10 init
             self.Box_dict[boxname[i]] = [0,0,0, 0,0,0] # x,y,z, rx,ry,rz
+        
+
+        # robot position
+        self.nexus_x = 0
+        self.nexus_y = 0
+        self.nexus_z = 0
+
+        self.nexus_rx = 0
+        self.nexus_ry = 0
+        self.nexus_rz = 0
 
         self.contact = False
 
@@ -58,18 +51,22 @@ class learning_class:
 
 
 
+
+        rospy.Subscriber('/base_link_contact_sensor_state', ContactsState, self.callback_contact)
+        rospy.Subscriber('/gazebo/set_model_state', ModelState, self.box_callback)
+        rospy.Subscriber('/gazebo/model_states', ModelStates, self.nexusPos_callback)
+        rospy.Subscriber('/laser/scan', LaserScan, self.laser_callback)
+        self.publish_agent_action = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
+
+
+        
+
+
+
+
     # Callback Functions
     def laser_callback(self, msg):
         self.laser_observation = msg.ranges
-
-    def callback_odom(self, msg):
-        self.x =  msg.pose.pose.position.x
-        self.y =  msg.pose.pose.position.y
-        self.z =  msg.pose.pose.position.z
-
-        self.rx = msg.pose.pose.orientation.x
-        self.ry = msg.pose.pose.orientation.y
-        self.rz = msg.pose.pose.orientation.z
 
     def box_callback(self, msg):
         box_name = msg.model_name
@@ -91,7 +88,16 @@ class learning_class:
         print('Target_box Position : ', self.Box_dict['box_target'])
         print('laser: ', np.array(self.laser_observation).shape)
 
+    def nexusPos_callback(self, msg):
+        for i in range(len(msg.name)):
+            if msg.name[i] == 'nexus_4wd_mecanum':
+                self.nexus_x = msg.pose[i].position.x
+                self.nexus_y = msg.pose[i].position.y
+                self.nexus_z = msg.pose[i].position.z
 
+                self.nexus_rx = msg.pose[i].orientation.x
+                self.nexus_ry = msg.pose[i].orientation.y
+                self.nexus_rz = msg.pose[i].orientation.z
 
 
 
@@ -100,20 +106,22 @@ class learning_class:
         """
         State : Laser, Robot Position, Target Box Position
         """
-        state = np.concatenate((self.laser_observation, [self.x, self.y, self.z], self.Box_dict['box_target']), axis=0)
+        state = np.concatenate((self.laser_observation, 
+                                [self.nexus_x, self.nexus_y, self.nexus_rz], 
+                                self.Box_dict['box_target']), axis=0)
         return state
 
     def get_reward(self):
         """
         Reward Setting : Distance between Robot and Target Box
         """
-        reward = 5-np.sqrt((self.x - self.Box_dict['box_target'][0])**2 + (self.y - self.Box_dict['box_target'][1])**2)
-        print('x:',self.x)
-        print('y:',self.y)
+        reward = 2-np.sqrt((self.nexus_x - self.Box_dict['box_target'][0])**2 + (self.nexus_y - self.Box_dict['box_target'][1])**2)
+        # print('x:',self.nexus_x)
+        # print('y:',self.nexus_y)
 
-        print('target_X:',self.Box_dict['box_target'][0])
-        print('target_Y',self.Box_dict['box_target'][1])
-        # print(reward)
+        # print('target_X:',self.Box_dict['box_target'][0])
+        # print('target_Y',self.Box_dict['box_target'][1])
+        print(reward)
         return reward
 
 
@@ -149,7 +157,6 @@ def main():
             rospy.wait_for_service('/gazebo/reset_world')
             reset_world = rospy.ServiceProxy('/gazebo/reset_world', Empty)
             reset_world()
-            process.odom_reset.publish(Empty_msg())
 
         # process.test_callback()
         process.get_reward()
