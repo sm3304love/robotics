@@ -10,6 +10,7 @@ import numpy as np
 # import torch
 import pandas as pd
 
+from std_msgs.msg import Empty as Empty_msg
 
 
 import rospy
@@ -28,6 +29,8 @@ class learning_class:
         rospy.Subscriber('/gazebo/set_model_state', ModelState, self.box_callback)
         rospy.Subscriber('/laser/scan', LaserScan, self.laser_callback)
         self.publish_agent_action = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
+        self.odom_reset = rospy.Publisher('/mobile_base/commands/reset_odometry' ,Empty_msg, queue_size=10)
+
         
         # robot position
         self.x = 0
@@ -49,9 +52,15 @@ class learning_class:
         # laser
         self.laser_observation = []
 
+        # Robot Action : [linear_x, linear_y, linear_z, angular_x, angular_y, angular_z]
+        self.action = [0,0,0,0,0,0]
+        self.action_past = [0,0,0,0,0,0]
+
+
+
+    # Callback Functions
     def laser_callback(self, msg):
         self.laser_observation = msg.ranges
-
 
     def callback_odom(self, msg):
         self.x =  msg.pose.pose.position.x
@@ -70,13 +79,11 @@ class learning_class:
 
         self.Box_dict[box_name] = [box_position.x, box_position.y, box_position.z, box_orientation.x, box_orientation.y, box_orientation.z]
         
-
     def callback_contact(self, msg):
         if len(msg.states) > 0:
             self.contact = True
         else:
             self.contact = False
-
 
     def test_callback(self):
         print('Contact : ',self.contact)
@@ -84,23 +91,53 @@ class learning_class:
         print('Target_box Position : ', self.Box_dict['box_target'])
         print('laser: ', np.array(self.laser_observation).shape)
 
+
+
+
+
+    # Reinforcement Learning Functions
+    def get_state(self):
+        """
+        State : Laser, Robot Position, Target Box Position
+        """
+        state = np.concatenate((self.laser_observation, [self.x, self.y, self.z], self.Box_dict['box_target']), axis=0)
+        return state
+
+    def get_reward(self):
+        """
+        Reward Setting : Distance between Robot and Target Box
+        """
+        reward = 5-np.sqrt((self.x - self.Box_dict['box_target'][0])**2 + (self.y - self.Box_dict['box_target'][1])**2)
+        print('x:',self.x)
+        print('y:',self.y)
+
+        print('target_X:',self.Box_dict['box_target'][0])
+        print('target_Y',self.Box_dict['box_target'][1])
+        # print(reward)
+        return reward
+
+
+
+
+
+
+    # Publish Agent Action
     def pub(self):        
         pub_action = Twist()
-        pub_action.linear.x = 2.5
-        pub_action.linear.y = 0.0
-        pub_action.linear.z = 0.0
+        pub_action.linear.x = 1
+        pub_action.linear.y = self.action[1]
+        pub_action.linear.z = self.action[2]
 
-        pub_action.angular.x = 0.0
-        pub_action.angular.y = 0.0
-        pub_action.angular.z = -0.1
+        pub_action.angular.x = self.action[3]
+        pub_action.angular.y = self.action[4]
+        pub_action.angular.z = self.action[5]
 
         self.publish_agent_action.publish(pub_action)
-
         
     
 def main():
     # initialize node
-    rospy.init_node('imu_sensor_collect', anonymous=False)
+    rospy.init_node('agent', anonymous=False)
     rate = rospy.Rate(100)
 
     process = learning_class()
@@ -112,11 +149,19 @@ def main():
             rospy.wait_for_service('/gazebo/reset_world')
             reset_world = rospy.ServiceProxy('/gazebo/reset_world', Empty)
             reset_world()
-            print('reset world')
+            process.odom_reset.publish(Empty_msg())
 
-        process.test_callback()
+        # process.test_callback()
+        process.get_reward()
         process.pub()
         rate.sleep()
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
     try:
