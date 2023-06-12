@@ -82,12 +82,6 @@ class learning_class:
         else:
             self.contact = False
 
-    def test_callback(self):
-        print('Contact : ',self.contact)
-        print('Robot Position : ', self.x, self.y, self.z)
-        print('Target_box Position : ', self.Box_dict['box_target'])
-        print('laser: ', np.array(self.laser_observation).shape)
-
     def nexusPos_callback(self, msg):
         for i in range(len(msg.name)):
             if msg.name[i] == 'nexus_4wd_mecanum':
@@ -98,6 +92,18 @@ class learning_class:
                 self.nexus_rx = msg.pose[i].orientation.x
                 self.nexus_ry = msg.pose[i].orientation.y
                 self.nexus_rz = msg.pose[i].orientation.z
+
+    def test_callback(self):
+        print('Contact : ',self.contact)
+        print('Robot Position : ', self.nexus_x, self.nexus_x_y, self.nexus_z)
+        print('Target_box Position : ', self.Box_dict['box_target'])
+        print('laser: ', np.array(self.laser_observation).shape)
+
+
+
+
+
+
 
 
 
@@ -121,8 +127,9 @@ class learning_class:
 
         # print('target_X:',self.Box_dict['box_target'][0])
         # print('target_Y',self.Box_dict['box_target'][1])
-        print(reward)
+        # print(reward)
         return reward
+
 
 
 
@@ -132,13 +139,13 @@ class learning_class:
     # Publish Agent Action
     def pub(self):        
         pub_action = Twist()
-        pub_action.linear.x = 1
+        pub_action.linear.x = 2.5
         pub_action.linear.y = self.action[1]
         pub_action.linear.z = self.action[2]
 
         pub_action.angular.x = self.action[3]
         pub_action.angular.y = self.action[4]
-        pub_action.angular.z = self.action[5]
+        pub_action.angular.z = 0.2
 
         self.publish_agent_action.publish(pub_action)
         
@@ -152,14 +159,22 @@ def main():
     while not rospy.is_shutdown():
 
         
-        # If Collision, reset world
+        
+
+        # process.test_callback()
+        reward = process.get_reward()
+        state = process.get_state()
+
+
+        # If Collision, reset world, reward = -100
         if process.contact == True:
+            reward = -100
             rospy.wait_for_service('/gazebo/reset_world')
             reset_world = rospy.ServiceProxy('/gazebo/reset_world', Empty)
             reset_world()
+            
+        print('reward : ', reward)
 
-        # process.test_callback()
-        process.get_reward()
         process.pub()
         rate.sleep()
 
